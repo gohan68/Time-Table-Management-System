@@ -6,6 +6,7 @@ interface SubjectData {
   id: number;
   subject_name: string;
   class_id: number;
+  semester: number;
 }
 
 interface ClassData {
@@ -18,6 +19,7 @@ const ManageSubjects = () => {
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [subjectName, setSubjectName] = useState("");
   const [classId, setClassId] = useState<number | null>(null);
+  const [semester, setSemester] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   // Fetch Subjects & Classes from Supabase
@@ -39,8 +41,8 @@ const ManageSubjects = () => {
   // Add or Update Subject
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!subjectName || !classId) {
-      alert("Please enter subject name and select a class.");
+    if (!subjectName || !classId || !semester) {
+      alert("Please enter subject name, select a class, and choose a semester.");
       return;
     }
 
@@ -48,19 +50,25 @@ const ManageSubjects = () => {
       // Update existing subject
       const { error } = await supabase
         .from("subjects")
-        .update({ subject_name: subjectName, class_id: classId })
+        .update({ subject_name: subjectName, class_id: classId, semester })
         .eq("id", editingId);
 
       if (!error) {
-        setSubjects(subjects.map(sub => (sub.id === editingId ? { ...sub, subject_name: subjectName, class_id: classId } : sub)));
+        setSubjects(subjects.map(sub => (sub.id === editingId ? { ...sub, subject_name: subjectName, class_id: classId, semester } : sub)));
         setEditingId(null);
       }
     } else {
       // Insert new subject
       const { data, error } = await supabase
         .from("subjects")
-        .insert([{ subject_name: subjectName, class_id: classId }])
+        .insert([{ subject_name: subjectName, class_id: classId, semester }])
         .select();
+
+      if (error) {
+        console.error("Insert Error:", error);
+        alert("Error adding subject: " + error.message);
+        return;
+      }
 
       if (data) {
         setSubjects([...subjects, ...data as SubjectData[]]);
@@ -69,6 +77,7 @@ const ManageSubjects = () => {
 
     setSubjectName("");
     setClassId(null);
+    setSemester(null);
   };
 
   // Edit Subject
@@ -76,6 +85,7 @@ const ManageSubjects = () => {
     setEditingId(subject.id);
     setSubjectName(subject.subject_name);
     setClassId(subject.class_id);
+    setSemester(subject.semester);
   };
 
   // Delete Subject
@@ -109,6 +119,16 @@ const ManageSubjects = () => {
             </option>
           ))}
         </select>
+        <select
+          value={semester ?? ""}
+          onChange={(e) => setSemester(Number(e.target.value))}
+          className="w-full p-2 border border-gray-300 rounded"
+        >
+          <option value="" disabled>Select Semester</option>
+          {[1, 2, 3, 4, 5, 6].map((sem) => (
+            <option key={sem} value={sem}>Semester {sem}</option>
+          ))}
+        </select>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
           {editingId ? "Update Subject" : "Add Subject"}
         </button>
@@ -120,6 +140,7 @@ const ManageSubjects = () => {
           <tr className="bg-gray-100">
             <th className="border p-2">Subject Name</th>
             <th className="border p-2">Assigned Class</th>
+            <th className="border p-2">Semester</th>
             <th className="border p-2">Actions</th>
           </tr>
         </thead>
@@ -130,6 +151,7 @@ const ManageSubjects = () => {
               <td className="border p-2">
                 {classes.find(cls => cls.id === subject.class_id)?.class_name || "Unknown"}
               </td>
+              <td className="border p-2">Semester {subject.semester}</td>
               <td className="border p-2">
                 <button onClick={() => handleEdit(subject)} className="bg-yellow-500 text-white px-2 py-1 rounded mr-2">
                   Edit
