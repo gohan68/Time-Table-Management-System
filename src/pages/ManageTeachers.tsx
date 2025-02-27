@@ -18,7 +18,7 @@ export default function Teacher() {
   }, []);
 
   async function fetchTeachers() {
-    const { data, error } = await supabase.from("profiles").select("id, full_name, email").eq("role", "teacher");
+    const { data, error } = await supabase.from("profiles").select("id, full_name, email").eq("role", "faculty");
     if (error) console.error(error);
     else setTeachers(data || []);
   }

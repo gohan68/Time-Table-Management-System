@@ -8,7 +8,7 @@ const AdminDashboard = () => {
         <Link to="/admin/classes" className="block py-2 text-blue-600">Manage Classes</Link>
         <Link to="/admin/subjects" className="block py-2 text-blue-600">Manage Subjects</Link>
         <Link to="/admin/teachers" className="block py-2 text-blue-600">Manage Teachers</Link>
-        <Link to="/admin/timetable" className="block py-2 text-blue-600">Manage Timetable</Link>
+        <Link to="/admin/classlist" className="block py-2 text-blue-600">Manage Timetable</Link>
       </div>
     </div>
   );

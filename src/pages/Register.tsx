@@ -5,6 +5,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 const departments = ['B.Sc', 'BCA', 'BBA', 'B.A Defence', 'MCA'];
 const years = ['1st Year', '2nd Year', '3rd Year'];
 const classes = ['A', 'B', 'C'];
+
 export function Register() {
   const { role } = useParams<{ role: string }>();
   const navigate = useNavigate();
@@ -37,58 +38,55 @@ export function Register() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
-
+  
     try {
-      const { data, error: authError } = await supabase.auth.signUp({
+      
+      const { data: existingUser, error: userCheckError } = await supabase
+        .from("profiles") 
+        .select("email")
+        .eq("email", formData.email)
+        .single();
+  
+      if (existingUser) {
+        throw new Error("This email is already registered.");
+      }
+  
+      if (userCheckError && userCheckError.code !== "PGRST116") {
+        throw userCheckError; 
+      }
+  
+     
+      const { error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
           emailRedirectTo: `${window.location.origin}/login/${role}`,
+          data: { full_name: formData.full_name, role: role }, 
         },
       });
-
+  
       if (authError) throw authError;
-      const user = data.user;
-      if (!user) throw new Error('User creation failed');
-
-      const { error: profileError } = await supabase.from('profiles').insert([
-        {
-          id: user.id,
-          full_name: formData.full_name,
-          email: formData.email,
-          role: formData.role,
-          department: formData.role === 'student' ? formData.department : null,
-          year: formData.role === 'student' ? formData.year : null,
-          class_section: formData.role === 'student' ? formData.class_section : null,
-          created_at: new Date(),
-        },
-      ]);
-
-      if (profileError) {
-        console.error('Profile Insert Error:', profileError);
-        setError(`Profile Insert Error: ${profileError.message}`);
-        return;
-      }
-
-      alert('Registration successful! Check your email for confirmation.');
+  
+      alert("Registration successful! Check your email for confirmation.");
+      navigate(`/login/${role}`);
+  
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Database Error:', err);
-        setError(err.message);
-      } else {
-        setError('An unknown error occurred');
-      }
+      console.error("Unexpected Error:", err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
+      alert(`Error: ${err instanceof Error ? err.message : "Unknown error occurred"}`);
     } finally {
       setLoading(false);
     }
   };
-
+  
+  
+  
   return (
     <div className="flex flex-col items-center space-y-6 p-8 bg-white rounded-xl shadow-lg">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6">{displayRole} Registration</h2>
@@ -187,7 +185,6 @@ export function Register() {
             required
           />
         </div>
-
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
           <input
