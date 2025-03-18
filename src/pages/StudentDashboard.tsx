@@ -1,14 +1,21 @@
 import { Link } from "react-router-dom";
+
 const StudentDashboard = () => {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">Student Dashboard</h1>
-        <div className="mt-4">
-          <Link to="/student/timetable" className="block py-2 text-blue-600">View Timetable</Link>
-        </div>
+  return (
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-gray-800 mb-8">Student Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link
+          to="/student/timetable"
+          className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+        >
+          <h2 className="text-xl font-semibold text-blue-600 mb-2"><Link to="/student/timetable">View Time Table</Link>
+          </h2>
+          <p className="text-gray-600">Check your class schedule and timetable.</p>
+        </Link>
       </div>
-    );
-  };
-  
-  export default StudentDashboard; 
-  
+    </div>
+  );
+};
+
+export default StudentDashboard;

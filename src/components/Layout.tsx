@@ -13,6 +13,7 @@ export function Layout() {
             />
             <h1 className="text-4xl font-bold text-gray-800">Guru Nanak College</h1>
           </div>
+        
           <h2 className="text-2xl text-gray-600">Time Table Management System</h2>
         </header>
 

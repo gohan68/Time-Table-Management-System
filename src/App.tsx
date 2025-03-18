@@ -12,6 +12,7 @@ import ManageSubjects from "./pages/ManageSubjects";
 import ManageTeachers from "./pages/ManageTeachers";
 import ManageTimetable from "./pages/ManageTimeTable";
 import ClassList from './pages/Classlist';
+import TimeTableView  from "./pages/TimeTableView";
 import {supabase} from "./lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 function App() {
@@ -47,6 +48,8 @@ function App() {
           <Route path="/admin/timetable/:classId" element={<ManageTimetable />} />
           <Route path="/Faculty/*" element={<TeacherDashboard />} />
           <Route path="/student/*" element={<StudentDashboard />} />
+          <Route path="/student/timetable" element={<TimeTableView />} />
+          <Route path="/teacher/timetable" element={<TimeTableView />} />
           <Route path="/admin/classlist" element={<ClassList />} /> 
         </Route>
       </Routes>
